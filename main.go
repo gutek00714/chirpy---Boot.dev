@@ -21,13 +21,13 @@ func main() {
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(".")))))
 
 	// set healthz path
-	mux.HandleFunc("/healthz", healthzHandlerFunction)
+	mux.HandleFunc("GET /healthz", healthzHandlerFunction)
 
 	// set metrics path
-	mux.HandleFunc("/metrics", apiCfg.metricsHandlerFunction)
+	mux.HandleFunc("GET /metrics", apiCfg.metricsHandlerFunction)
 
 	// set reset path
-	mux.HandleFunc("/reset", apiCfg.resetHandlerFunction)
+	mux.HandleFunc("POST /reset", apiCfg.resetHandlerFunction)
 
 	// create a Server struct with handler and addr
 	server := &http.Server{
