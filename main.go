@@ -21,13 +21,13 @@ func main() {
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(".")))))
 
 	// set healthz path
-	mux.HandleFunc("GET /healthz", healthzHandlerFunction)
+	mux.HandleFunc("GET /api/healthz", healthzHandlerFunction)
 
 	// set metrics path
-	mux.HandleFunc("GET /metrics", apiCfg.metricsHandlerFunction)
+	mux.HandleFunc("GET /admin/metrics", apiCfg.metricsHandlerFunction)
 
 	// set reset path
-	mux.HandleFunc("POST /reset", apiCfg.resetHandlerFunction)
+	mux.HandleFunc("POST /admin/reset", apiCfg.resetHandlerFunction)
 
 	// create a Server struct with handler and addr
 	server := &http.Server{
@@ -66,7 +66,14 @@ func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 
 func (cfg *apiConfig) metricsHandlerFunction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
-	fmt.Fprintf(w, "Hits: %v", cfg.fileserverHits.Load())
+	// fmt.Fprintf(w, "Hits: %v", cfg.fileserverHits.Load())
+	ret := fmt.Sprintf(`<html>
+  <body>
+    <h1>Welcome, Chirpy Admin</h1>
+    <p>Chirpy has been visited %d times!</p>
+  </body>
+</html>`, cfg.fileserverHits.Load())
+	w.Write([]byte(ret))
 }
 
 func (cfg *apiConfig) resetHandlerFunction(w http.ResponseWriter, r *http.Request) {
