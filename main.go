@@ -1,18 +1,41 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
+	"os"
 	"sync/atomic"
+
+	"github.com/gutek00714/chirpy---Boot.dev/internal/database"
+	"github.com/joho/godotenv"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
+	// load .env into environment variables
+	godotenv.Load()
+
+	// get DB_URL from the environment
+	dbURL := os.Getenv("DB_URL")
+
+	// open a connection to database
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// create a new *database.Queries and store it in apiConfig struct
+	dbQueries := database.New(db)
+
 	// create a new ServeMux (router)
 	mux := http.NewServeMux()
 
 	// initialize apiConfig
 	apiCfg := apiConfig{
 		fileserverHits: atomic.Int32{},
+		db:             dbQueries,
 	}
 
 	// serve files from the current directory at the root path
