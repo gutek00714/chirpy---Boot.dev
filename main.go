@@ -36,6 +36,7 @@ func main() {
 	apiCfg := apiConfig{
 		fileserverHits: atomic.Int32{},
 		db:             dbQueries,
+		platform:       os.Getenv("PLATFORM"),
 	}
 
 	// serve files from the current directory at the root path
@@ -53,6 +54,9 @@ func main() {
 
 	// set validate_chirp path
 	mux.HandleFunc("POST /api/validate_chirp", validateHelperFunction)
+
+	// set users path
+	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
 
 	// create a Server struct with handler and addr
 	server := &http.Server{

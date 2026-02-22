@@ -11,6 +11,7 @@ import (
 type apiConfig struct {
 	fileserverHits atomic.Int32
 	db             *database.Queries
+	platform       string
 }
 
 func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
@@ -33,5 +34,13 @@ func (cfg *apiConfig) metricsHandlerFunction(w http.ResponseWriter, r *http.Requ
 }
 
 func (cfg *apiConfig) resetHandlerFunction(w http.ResponseWriter, r *http.Request) {
+
+	if cfg.platform != "dev" {
+		respondWithError(w, 403, "Forbidden")
+		return
+	}
+
+	cfg.db.DeleteAllUsers(r.Context())
+
 	cfg.fileserverHits.Store(0)
 }
