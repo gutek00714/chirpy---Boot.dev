@@ -67,6 +67,9 @@ func main() {
 	// set chirps path
 	mux.HandleFunc("POST /api/chirps", apiCfg.handlerChirpsCreate)
 
+	// set GET chirps path
+	mux.HandleFunc("GET /api/chirps", apiCfg.handlerChirpsRetrieve)
+
 	// create a Server struct with handler and addr
 	server := &http.Server{
 		Handler: mux,
