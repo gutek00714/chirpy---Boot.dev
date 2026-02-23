@@ -13,6 +13,12 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type apiConfig struct {
+	fileserverHits atomic.Int32
+	db             *database.Queries
+	platform       string
+}
+
 func main() {
 	// load .env into environment variables
 	godotenv.Load()
@@ -53,10 +59,13 @@ func main() {
 	mux.HandleFunc("POST /admin/reset", apiCfg.resetHandlerFunction)
 
 	// set validate_chirp path
-	mux.HandleFunc("POST /api/validate_chirp", validateHelperFunction)
+	// mux.HandleFunc("POST /api/validate_chirp", validateHelperFunction)
 
 	// set users path
 	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
+
+	// set chirps path
+	mux.HandleFunc("POST /api/chirps", apiCfg.handlerChirpsCreate)
 
 	// create a Server struct with handler and addr
 	server := &http.Server{
