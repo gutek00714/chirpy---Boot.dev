@@ -1,7 +1,12 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
 
+	"github.com/google/uuid"
+)
+
+// retrieve all chirps ordered by created_at
 func (cfg *apiConfig) handlerChirpsRetrieve(w http.ResponseWriter, r *http.Request) {
 	// get all the chirps from the database
 	// []database.Chirp
@@ -25,4 +30,30 @@ func (cfg *apiConfig) handlerChirpsRetrieve(w http.ResponseWriter, r *http.Reque
 
 	// respond
 	respondWithJSON(w, 200, chirps)
+}
+
+// retrieve one chirp by id
+func (cfg *apiConfig) handlerOneChirpRetrieve(w http.ResponseWriter, r *http.Request) {
+	chirpID := r.PathValue("chirpID")
+	chirpID_UUID, err := uuid.Parse(chirpID)
+	if err != nil {
+		respondWithError(w, 404, "Invalid ID")
+		return
+	}
+
+	// get chirp from database
+	foundChirp, err := cfg.db.RetrieveOneChirp(r.Context(), chirpID_UUID)
+	if err != nil {
+		respondWithError(w, 404, "Chirp not found")
+		return
+	}
+
+	// respond
+	respondWithJSON(w, 200, Chirp{
+		ID:        foundChirp.ID,
+		CreatedAt: foundChirp.CreatedAt,
+		UpdatedAt: foundChirp.UpdatedAt,
+		Body:      foundChirp.Body,
+		UserID:    foundChirp.UserID,
+	})
 }
