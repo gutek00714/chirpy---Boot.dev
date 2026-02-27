@@ -5,9 +5,17 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/gutek00714/chirpy---Boot.dev/internal/auth"
 )
 
 func (cfg *apiConfig) handlerUpgradeUserChirpyRed(w http.ResponseWriter, r *http.Request) {
+	// check if apikey matches
+	apiKey, err := auth.GetAPIKey(r.Header)
+	if err != nil || apiKey != cfg.polkaSecret {
+		respondWithError(w, 401, "Unauthorized")
+		return
+	}
+
 	type parameters struct {
 		Event string `json:"event"`
 		Data  struct {
@@ -17,7 +25,7 @@ func (cfg *apiConfig) handlerUpgradeUserChirpyRed(w http.ResponseWriter, r *http
 
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
-	err := decoder.Decode(&params)
+	err = decoder.Decode(&params)
 	if err != nil {
 		respondWithError(w, 500, "Error decoding parameters")
 		return

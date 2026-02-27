@@ -18,6 +18,7 @@ type apiConfig struct {
 	db             *database.Queries
 	platform       string
 	jwtSecret      string
+	polkaSecret    string
 }
 
 func main() {
@@ -45,6 +46,7 @@ func main() {
 		db:             dbQueries,
 		platform:       os.Getenv("PLATFORM"),
 		jwtSecret:      os.Getenv("JWT_SECRET"),
+		polkaSecret:    os.Getenv("POLKA_KEY"),
 	}
 
 	// serve files from the current directory at the root path
