@@ -4,13 +4,31 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/gutek00714/chirpy---Boot.dev/internal/database"
 )
 
 // retrieve all chirps ordered by created_at
 func (cfg *apiConfig) handlerChirpsRetrieve(w http.ResponseWriter, r *http.Request) {
-	// get all the chirps from the database
-	// []database.Chirp
-	dbChirps, err := cfg.db.RetrieveChirps(r.Context())
+	// optional author_id
+	s := r.URL.Query().Get("author_id")
+
+	var dbChirps []database.Chirp
+	var err error
+	var authorID uuid.UUID
+
+	if s != "" {
+		authorID, err = uuid.Parse(s)
+		if err != nil {
+			respondWithError(w, 400, "Invalid author_id")
+			return
+		}
+
+		dbChirps, err = cfg.db.GetUsersChirps(r.Context(), authorID)
+	} else {
+		// get all the chirps from the database
+		// []database.Chirp
+		dbChirps, err = cfg.db.RetrieveChirps(r.Context())
+	}
 	if err != nil {
 		respondWithError(w, 500, "Couldn't retrieve chirps")
 		return
