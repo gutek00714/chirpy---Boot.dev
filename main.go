@@ -78,6 +78,12 @@ func main() {
 	// set POST login path
 	mux.HandleFunc("POST /api/login", apiCfg.handlerUserLogin)
 
+	// set POST refresh path
+	mux.HandleFunc("POST /api/refresh", apiCfg.handlerRefreshToken)
+
+	// set POST revoke path
+	mux.HandleFunc("POST /api/revoke", apiCfg.HandlerRevokeToken)
+
 	// create a Server struct with handler and addr
 	server := &http.Server{
 		Handler: mux,

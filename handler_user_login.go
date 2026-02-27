@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gutek00714/chirpy---Boot.dev/internal/auth"
+	"github.com/gutek00714/chirpy---Boot.dev/internal/database"
 )
 
 func (cfg *apiConfig) handlerUserLogin(w http.ResponseWriter, r *http.Request) {
@@ -14,7 +15,7 @@ func (cfg *apiConfig) handlerUserLogin(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 
 		//optional
-		Expires_in_seconds int `json:"expires_in_seconds"`
+		// Expires_in_seconds int `json:"expires_in_seconds"`
 	}
 
 	//decode json
@@ -41,26 +42,41 @@ func (cfg *apiConfig) handlerUserLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if expiration time is specified by the client
-	defaultExpiration := time.Hour
+	// defaultExpiration := time.Hour
+	// if params.Expires_in_seconds > 0 {
+	// 	requestedExpiration := time.Duration(params.Expires_in_seconds) * time.Second
 
-	if params.Expires_in_seconds > 0 {
-		requestedExpiration := time.Duration(params.Expires_in_seconds) * time.Second
-
-		if requestedExpiration < defaultExpiration {
-			defaultExpiration = requestedExpiration
-		}
-	}
+	// 	if requestedExpiration < defaultExpiration {
+	// 		defaultExpiration = requestedExpiration
+	// 	}
+	// }
 
 	// create JWT
-	token, err := auth.MakeJWT(dbUser.ID, cfg.jwtSecret, defaultExpiration)
+	token, err := auth.MakeJWT(dbUser.ID, cfg.jwtSecret, time.Hour)
 	if err != nil {
 		respondWithError(w, 500, "Couldn't create JWT")
 		return
 	}
 
+	// generate refresh token
+	refreshToken := auth.MakeRefreshToken()
+	now := time.Now().UTC()
+	expires := now.Add(60 * 24 * time.Hour) // 60 days
+
+	_, err = cfg.db.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
+		Token:     refreshToken,
+		UserID:    dbUser.ID,
+		ExpiresAt: expires,
+	})
+	if err != nil {
+		respondWithError(w, 500, "Couldn't create refresh token")
+		return
+	}
+
 	type response struct {
 		User
-		Token string `json:"token"`
+		Token        string `json:"token"`
+		RefreshToken string `json:"refresh_token"`
 	}
 
 	// if the password matches return ok
@@ -71,7 +87,8 @@ func (cfg *apiConfig) handlerUserLogin(w http.ResponseWriter, r *http.Request) {
 			UpdatedAt: dbUser.UpdatedAt,
 			Email:     dbUser.Email,
 		},
-		Token: token,
+		Token:        token,
+		RefreshToken: refreshToken,
 	})
 
 }
