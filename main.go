@@ -87,6 +87,9 @@ func main() {
 	// set PUT users update path
 	mux.HandleFunc("PUT /api/users", apiCfg.handlerUpdateUser)
 
+	// set DELETE chirp path
+	mux.HandleFunc("DELETE /api/chirps/{chirpID}", apiCfg.handlerDeleteChirp)
+
 	// create a Server struct with handler and addr
 	server := &http.Server{
 		Handler: mux,
