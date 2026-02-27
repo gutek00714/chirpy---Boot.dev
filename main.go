@@ -82,7 +82,10 @@ func main() {
 	mux.HandleFunc("POST /api/refresh", apiCfg.handlerRefreshToken)
 
 	// set POST revoke path
-	mux.HandleFunc("POST /api/revoke", apiCfg.HandlerRevokeToken)
+	mux.HandleFunc("POST /api/revoke", apiCfg.handlerRevokeToken)
+
+	// set PUT users update path
+	mux.HandleFunc("PUT /api/users", apiCfg.handlerUpdateUser)
 
 	// create a Server struct with handler and addr
 	server := &http.Server{

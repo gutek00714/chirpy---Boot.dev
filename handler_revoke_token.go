@@ -6,7 +6,7 @@ import (
 	"github.com/gutek00714/chirpy---Boot.dev/internal/auth"
 )
 
-func (cfg *apiConfig) HandlerRevokeToken(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerRevokeToken(w http.ResponseWriter, r *http.Request) {
 	// get the refresh token
 	token, err := auth.GetBearerToken(r.Header)
 	if err != nil {
