@@ -12,6 +12,7 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Email     string    `json:"email"`
+	ChirpyRed bool      `json:"is_chirpy_red"`
 }
 
 func databaseUserToUser(u database.User) User {
@@ -20,5 +21,6 @@ func databaseUserToUser(u database.User) User {
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
 		Email:     u.Email,
+		ChirpyRed: u.IsChirpyRed,
 	}
 }
